@@ -1,0 +1,46 @@
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# Environments
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Kaggle outputs
+kaggle_working/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Model checkpoints and datasets
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.onnx
+data/
+models/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test and lint caches
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
