@@ -1,0 +1,39 @@
+[
+  {
+    "repository_id": "ragforge-python",
+    "name": "RAGForge",
+    "url": "https://github.com/moon-co-der/rag-forge.git",
+    "commit_sha": "3fd935ab334e2c8c66a14abb1e5ac81f7d6d43a6",
+    "snapshot_id": "86b8643dbe548102bf1be5a6b5b60c1c703bfaefc1f65e94ff0545ccb42da93f",
+    "languages": [
+      "python"
+    ],
+    "source_files": 45,
+    "developer_familiar": true
+  },
+  {
+    "repository_id": "bulletproof-react-ts-tsx",
+    "name": "bulletproof-react",
+    "url": "https://github.com/alan2207/bulletproof-react.git",
+    "commit_sha": "9506629ed003a561c6627735480cce4994244bb4",
+    "snapshot_id": "83686b2ed35e494d33c9eab2b005a56b04d5eeff544407eb7d1b1ec766022220",
+    "languages": [
+      "typescript",
+      "tsx"
+    ],
+    "source_files": 416,
+    "developer_familiar": false
+  },
+  {
+    "repository_id": "spring-petclinic-java",
+    "name": "spring-petclinic",
+    "url": "https://github.com/spring-projects/spring-petclinic.git",
+    "commit_sha": "500158f732419217507c7656904b8e6aa1bcc0d6",
+    "snapshot_id": "e01f881aa2eda38057a528d9a1d760260b36a23deb4cbb3ff2d7ad4cef6e9bd9",
+    "languages": [
+      "java"
+    ],
+    "source_files": 50,
+    "developer_familiar": false
+  }
+]

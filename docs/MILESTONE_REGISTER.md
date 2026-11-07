@@ -56,3 +56,17 @@ checks.
   environment. CI repeats build, install, and import checks on every run.
 
 M1 close-out remains a required milestone before M3 begins.
+
+## M3 — Evaluation foundation
+
+- **M3-T01:** `evaluation/repositories.json` pins three varied repositories by
+  full Git commit SHA, records source-file counts and language coverage, and
+  marks the familiar RAGForge repository. Each `snapshot_id` is the SHA-256 of
+  the normalized repository URL and commit SHA. The two external checkout
+  revisions were verified against their recorded commits.
+- **M3-T02:** `schemas/gold_set.schema.json` defines the JSONL question record;
+  `ragforge.evaluation.gold_set` validates line-range or symbol spans and loads
+  JSONL while rejecting malformed records and duplicate question IDs.
+
+M3-T03 and later tasks remain open. No retrieval baseline or metric work is
+included in this step.
