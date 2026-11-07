@@ -23,12 +23,10 @@ def scan_repository(
 
     def scan_directory(directory: Path) -> Iterator[Path]:
         try:
-            entries = sorted(os.scandir(directory), key=lambda entry: entry.name.lower())
-        except PermissionError:
+            with os.scandir(directory) as iterator:
+                entries = sorted(iterator, key=lambda entry: entry.name.lower())
+        except OSError:
             return
-
-        with os.scandir(directory) as iterator:
-            entries = sorted(iterator, key=lambda entry: entry.name.lower())
 
         for entry in entries:
             path = Path(entry.path)

@@ -3,6 +3,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Literal
 
+from ragforge.paths import normalize_repo_path
+
 SourceType = Literal["github", "zip", "local"]
 
 
@@ -34,6 +36,9 @@ class Document:
     content_hash: str
     line_count: int
     metadata: dict = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "file_path", normalize_repo_path(self.file_path))
 
     @property
     def file_name(self) -> str:

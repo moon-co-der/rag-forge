@@ -8,13 +8,23 @@ name = "ragforge"
 version = "0.1.0"
 description = "A modular RAG experimentation and evaluation framework"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "tree-sitter>=0.25.2,<0.26",
+    "tree-sitter-python>=0.23,<0.26",
+    "tree-sitter-javascript>=0.23,<0.26",
+    "tree-sitter-typescript>=0.23,<0.24",
+    "tree-sitter-java>=0.23,<0.24",
+]
+
+[project.scripts]
+ragforge = "ragforge.cli:main"
 
 [project.optional-dependencies]
 dev = [
     "pytest",
     "ruff",
-    "build"
+    "build",
+    "mypy",
 ]
 
 [tool.setuptools.packages.find]
@@ -27,6 +37,7 @@ pythonpath = ["src"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+exclude = ["tests/fixtures/**"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I"]

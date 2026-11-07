@@ -1,0 +1,98 @@
+{
+  "parse": {
+    "has_syntax_errors": false,
+    "syntax_error_count": 0,
+    "used_fallback": false,
+    "fallback_reason": null,
+    "errors": []
+  },
+  "symbols": [
+    {
+      "name": "Props",
+      "symbol_type": "type_alias",
+      "qualified_name": "Props",
+      "signature": "type Props =",
+      "start_line": 1,
+      "end_line": 1,
+      "documentation": "",
+      "symbol_key": "8b552836a4aedb334dd0f7361efd3e70cc2663f01dcc318fb3d020827ee844ab",
+      "parent_symbol_id": null,
+      "start_byte": 0,
+      "end_byte": 30,
+      "source_slice": "type Props = { name: string };"
+    },
+    {
+      "name": "View",
+      "symbol_type": "function",
+      "qualified_name": "View",
+      "signature": "View = ({ name }: Props) =>",
+      "start_line": 2,
+      "end_line": 7,
+      "documentation": "",
+      "symbol_key": "6d76b54b8604db55c4d9406adb6456cfdc3075d08eae04003a2a37573192ca9f",
+      "parent_symbol_id": null,
+      "start_byte": 44,
+      "end_byte": 205,
+      "source_slice": "View = ({ name }: Props) => (\n  <section aria-label={name}>\n    <h1>{name.toUpperCase()}</h1>\n    <button onClick={() => save(name)}>Save</button>\n  </section>\n)"
+    }
+  ],
+  "chunks": [
+    {
+      "symbol_name": "",
+      "symbol_type": "module_residue",
+      "qualified_name": "",
+      "content": "type Props = { name: string };\nexport const ",
+      "start_line": 1,
+      "end_line": 2,
+      "parent_chunk_id": null,
+      "chunk_origin": "structural",
+      "coverage": true,
+      "context_header": "conformance.tsx",
+      "signature": "",
+      "enclosing_class": null,
+      "parent_symbol_key": null,
+      "is_trivial": false,
+      "fallback_reason": null,
+      "start_byte": 0,
+      "end_byte": 44
+    },
+    {
+      "symbol_name": "View",
+      "symbol_type": "function",
+      "qualified_name": "View",
+      "content": "View = ({ name }: Props) => (\n  <section aria-label={name}>\n    <h1>{name.toUpperCase()}</h1>\n    <button onClick={() => save(name)}>Save</button>\n  </section>\n)",
+      "start_line": 2,
+      "end_line": 7,
+      "parent_chunk_id": null,
+      "chunk_origin": "structural",
+      "coverage": true,
+      "context_header": "conformance.tsx > View",
+      "signature": "View = ({ name }: Props) =>",
+      "enclosing_class": null,
+      "parent_symbol_key": null,
+      "is_trivial": false,
+      "fallback_reason": null,
+      "start_byte": 44,
+      "end_byte": 205
+    },
+    {
+      "symbol_name": "",
+      "symbol_type": "module_residue",
+      "qualified_name": "",
+      "content": ";\n",
+      "start_line": 7,
+      "end_line": 7,
+      "parent_chunk_id": null,
+      "chunk_origin": "structural",
+      "coverage": true,
+      "context_header": "conformance.tsx",
+      "signature": "",
+      "enclosing_class": null,
+      "parent_symbol_key": null,
+      "is_trivial": true,
+      "fallback_reason": null,
+      "start_byte": 205,
+      "end_byte": 207
+    }
+  ]
+}

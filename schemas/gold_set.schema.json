@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ragforge.local/schemas/gold_set.schema.json",
+  "title": "RAGForge evaluation gold question",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "question_id",
+    "text",
+    "category",
+    "answerable",
+    "gold_spans",
+    "snapshot_id",
+    "split"
+  ],
+  "properties": {
+    "question_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+    "text": {"type": "string", "minLength": 1, "pattern": "\\S"},
+    "category": {
+      "enum": ["exact_symbol", "conceptual", "cross_file", "overview", "unanswerable"]
+    },
+    "answerable": {"type": "boolean"},
+    "gold_spans": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["file_path"],
+        "properties": {
+          "file_path": {"type": "string", "minLength": 1, "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(/|$))[^\\\\]+$"},
+          "start_line": {"type": "integer", "minimum": 1},
+          "end_line": {"type": "integer", "minimum": 1},
+          "symbol": {"type": "string", "minLength": 1}
+        },
+        "oneOf": [
+          {"required": ["start_line", "end_line"], "not": {"required": ["symbol"]}},
+          {"required": ["symbol"], "not": {"anyOf": [{"required": ["start_line"]}, {"required": ["end_line"]}]}}
+        ]
+      }
+    },
+    "snapshot_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "split": {"enum": ["dev", "test"]},
+    "reference_answer": {"type": "string"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"answerable": {"const": true}}},
+      "then": {
+        "properties": {
+          "category": {"not": {"const": "unanswerable"}},
+          "gold_spans": {"minItems": 1}
+        }
+      },
+      "else": {
+        "properties": {
+          "category": {"const": "unanswerable"},
+          "gold_spans": {"maxItems": 0}
+        }
+      }
+    }
+  ]
+}
