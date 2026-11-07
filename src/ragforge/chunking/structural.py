@@ -24,7 +24,7 @@ class StructuralChunker:
     def chunk(
         self,
         document: Document,
-        parsed: ParseResult | None,
+        parsed: ParseResult | None = None,
         config: ChunkingConfig | None = None,
     ) -> tuple[ChunkRecord, ...]:
         settings = config or ChunkingConfig()

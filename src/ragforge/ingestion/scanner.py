@@ -75,13 +75,8 @@ def scan_repository(
             ):
                 continue
 
-            # Check file size.
-            try:
-                if entry.stat(follow_symlinks=False).st_size > config.max_file_size_bytes:
-                    continue
-            except OSError:
-                continue
-
+            # Leave size and read failures to the reader so ingestion can report
+            # them in its skip ledger and snapshot manifest.
             yield path
 
     yield from scan_directory(root)

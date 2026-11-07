@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Literal
 
+from ragforge.ingestion.manifest import SnapshotManifest
 from ragforge.paths import normalize_repo_path
 
 SourceType = Literal["github", "zip", "local"]
@@ -53,3 +54,9 @@ class IngestionResult:
     processed_files: int
     skipped_files: int
     skip_reasons: dict[str, int] = field(default_factory=dict)
+    snapshot_manifest: SnapshotManifest | None = None
+
+    @property
+    def snapshot_id(self) -> str | None:
+        """Content identity for the set of files reported by this ingestion."""
+        return self.snapshot_manifest.snapshot_id if self.snapshot_manifest else None

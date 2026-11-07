@@ -29,7 +29,10 @@ def test_cli_inspects_and_exports_a_single_file(tmp_path, capsys):
     source = tmp_path / "sample.py"
     source.write_text("def answer():\n    return 42\n", encoding="utf-8")
     export = tmp_path / "chunks.jsonl"
-    result = main(["chunks", str(source), "--strategy", "fixed", "--jsonl", str(export)])
+    result = main([
+        "chunks", str(source), "--repository-id", "cli-fixture",
+        "--strategy", "fixed", "--jsonl", str(export),
+    ])
     captured = capsys.readouterr()
     assert result == 0
     assert "Total chunks: 1" in captured.out
@@ -50,7 +53,7 @@ def test_cli_reports_one_file_failure_and_continues(tmp_path, monkeypatch, capsy
         return actual(document, *args, **kwargs)
 
     monkeypatch.setattr(cli, "chunk_document", fail_one)
-    assert main(["chunks", str(tmp_path)]) == 1
+    assert main(["chunks", str(tmp_path), "--repository-id", "cli-fixture"]) == 1
     output = capsys.readouterr()
     assert "Failed bad.py: fixture failure" in output.err
     assert "good.py" in output.out

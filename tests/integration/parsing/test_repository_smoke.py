@@ -8,7 +8,7 @@ from ragforge.parsing.source import source_bytes
 
 
 def _chunks_with_coverage(root: Path):
-    documents = ingest_local(root).documents
+    documents = ingest_local(root, repository_id="ragforge-source").documents
     output = []
     for document in documents:
         chunks = chunk_document(document)

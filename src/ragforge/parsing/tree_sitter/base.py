@@ -1,6 +1,7 @@
 """Shared Tree-sitter adapter implementation and node-to-symbol conversion."""
 
 from collections.abc import Callable
+from typing import Any
 
 from tree_sitter import Language, Parser
 
@@ -116,7 +117,7 @@ class TreeSitterAdapter:
         """Iteratively collect declarations, then assemble their immutable tree bottom-up."""
         raw_symbols = []
         sibling_ordinals: dict[tuple[str | None, str, str], int] = {}
-        stack = [(root, None, "")]
+        stack: list[tuple[Any, str | None, str]] = [(root, None, "")]
         while stack:
             node, parent_id, parent_name = stack.pop()
             current_id, current_name = parent_id, parent_name

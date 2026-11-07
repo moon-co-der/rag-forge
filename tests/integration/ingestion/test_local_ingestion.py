@@ -6,11 +6,17 @@ from ragforge.ingestion.resolvers.local import resolve_local
 
 
 def test_resolves_local_repository(tmp_path):
-    snapshot = resolve_local(tmp_path)
+    snapshot = resolve_local(tmp_path, repository_id="test-repo")
 
     assert snapshot.root_path == tmp_path.resolve()
-    assert snapshot.repository.name == tmp_path.name
+    assert snapshot.repository.repository_id == "test-repo"
+    assert snapshot.repository.name == "test-repo"
     assert snapshot.repository.source_type == "local"
+
+
+def test_local_repository_identity_is_required(tmp_path):
+    with pytest.raises(ValueError, match="repository_id must be supplied explicitly"):
+        resolve_local(tmp_path)
 
 
 def test_ingests_local_repository(tmp_path):
@@ -31,9 +37,9 @@ def test_ingests_local_repository(tmp_path):
         encoding="utf-8",
     )
 
-    result = ingest_local(tmp_path)
+    result = ingest_local(tmp_path, repository_id="sample-project")
 
-    assert result.repository.name == tmp_path.name
+    assert result.repository.repository_id == "sample-project"
     assert result.discovered_files == 3
     assert result.processed_files == 2
     assert result.skipped_files == 1
@@ -53,7 +59,7 @@ def test_ingestion_returns_document_metadata(tmp_path):
         encoding="utf-8",
     )
 
-    result = ingest_local(tmp_path)
+    result = ingest_local(tmp_path, repository_id="sample-project")
 
     document = result.documents[0]
 
@@ -69,7 +75,7 @@ def test_rejects_nonexistent_directory(tmp_path):
     missing = tmp_path / "missing"
 
     with pytest.raises(FileNotFoundError):
-        ingest_local(missing)
+        ingest_local(missing, repository_id="sample-project")
 
 
 def test_rejects_file_as_repository(tmp_path):
@@ -77,4 +83,4 @@ def test_rejects_file_as_repository(tmp_path):
     file_path.write_text("print('hello')")
 
     with pytest.raises(ValueError):
-        ingest_local(file_path)
+        ingest_local(file_path, repository_id="sample-project")

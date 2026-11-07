@@ -26,18 +26,31 @@ def main(argv: list[str] | None = None) -> int:
     )
     chunks_command.add_argument("--max-chunk-size", type=int, default=8_000)
     chunks_command.add_argument("--jsonl", type=Path)
+    chunks_command.add_argument("--repository-id")
     args = parser.parse_args(argv)
     if args.command == "chunks":
-        return _inspect_chunks(args.path, args.strategy, args.max_chunk_size, args.jsonl)
+        return _inspect_chunks(
+            args.path,
+            args.strategy,
+            args.max_chunk_size,
+            args.jsonl,
+            args.repository_id,
+        )
     return 2
 
 
-def _inspect_chunks(path: Path, strategy: str, maximum: int, jsonl: Path | None) -> int:
+def _inspect_chunks(
+    path: Path,
+    strategy: str,
+    maximum: int,
+    jsonl: Path | None,
+    repository_id: str | None = None,
+) -> int:
     if maximum <= 0:
         print("--max-chunk-size must be greater than zero", file=sys.stderr)
         return 2
     try:
-        documents = _documents(path)
+        documents = _documents(path, repository_id)
     except (OSError, ValueError) as exc:
         print(f"Unable to read {path}: {exc}", file=sys.stderr)
         return 2
@@ -72,13 +85,13 @@ def _inspect_chunks(path: Path, strategy: str, maximum: int, jsonl: Path | None)
     return 1 if failures else 0
 
 
-def _documents(path: Path):
+def _documents(path: Path, repository_id: str | None = None):
     path = path.expanduser().resolve()
     if path.is_dir():
-        return ingest_local(path).documents
+        return ingest_local(path, repository_id=repository_id).documents
     if not path.is_file():
         raise FileNotFoundError(path)
-    repository_snapshot = resolve_local(path.parent)
+    repository_snapshot = resolve_local(path.parent, repository_id=repository_id)
     config = IngestionConfig()
     result = read_file(path, config)
     if not result.success:

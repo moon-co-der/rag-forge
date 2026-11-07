@@ -56,7 +56,7 @@ def test_skips_hidden_files(tmp_path):
     assert ".env.example" in filenames
 
 
-def test_skips_oversized_files(tmp_path):
+def test_discovers_oversized_files_for_explicit_read_skip_reporting(tmp_path):
     (tmp_path / "small.py").write_text("hello")
     (tmp_path / "large.py").write_text("x" * 100)
 
@@ -66,7 +66,7 @@ def test_skips_oversized_files(tmp_path):
     filenames = {path.name for path in files}
 
     assert "small.py" in filenames
-    assert "large.py" not in filenames
+    assert "large.py" in filenames
 
 
 def test_invalid_repository_path():

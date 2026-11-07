@@ -1,11 +1,10 @@
 
-import hashlib
 from pathlib import Path
 
 from ragforge.ingestion.models import RepositoryInfo, RepoSnapshot
 
 
-def resolve_local(source: str | Path) -> RepoSnapshot:
+def resolve_local(source: str | Path, repository_id: str | None = None) -> RepoSnapshot:
     """Validate and resolve a local repository directory."""
 
     root = Path(source).expanduser()
@@ -21,13 +20,12 @@ def resolve_local(source: str | Path) -> RepoSnapshot:
 
     root = root.resolve()
 
-    repository_id = hashlib.sha256(
-        str(root).encode("utf-8")
-    ).hexdigest()[:12]
+    if repository_id is None or not repository_id.strip():
+        raise ValueError("repository_id must be supplied explicitly for local repositories")
 
     repository = RepositoryInfo(
         repository_id=repository_id,
-        name=root.name,
+        name=repository_id,
         source_type="local",
         source_uri=root.as_uri(),
     )

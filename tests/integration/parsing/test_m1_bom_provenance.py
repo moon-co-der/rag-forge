@@ -7,7 +7,7 @@ def test_m1_document_retains_bom_and_crlf_bytes_for_m2_coverage(tmp_path):
     file_path = tmp_path / "greet.py"
     file_path.write_bytes(source.encode("utf-8"))
 
-    document = ingest_local(tmp_path).documents[0]
+    document = ingest_local(tmp_path, repository_id="bom-fixture").documents[0]
     chunks = chunk_document(document)
     coverage = sorted(
         (chunk.start_byte, chunk.end_byte, chunk.content.encode("utf-8"))

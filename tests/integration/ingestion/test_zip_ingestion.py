@@ -40,6 +40,59 @@ def test_ingests_multiple_nested_repository_files(tmp_path):
     assert all("ragforge-zip-" not in document.file_path for document in result.documents)
 
 
+def test_zip_identity_is_independent_of_archive_location_and_entry_order(tmp_path):
+    files = [("repo/src/app.py", b"print('hello')\n"), ("repo/README.md", b"# demo\n")]
+    first_path = tmp_path / "one" / "first.zip"
+    second_path = tmp_path / "different" / "second.zip"
+    first_path.parent.mkdir()
+    second_path.parent.mkdir()
+    for path, entries in ((first_path, files), (second_path, list(reversed(files)))):
+        with zipfile.ZipFile(path, "w") as archive:
+            for name, content in entries:
+                archive.writestr(name, content)
+
+    first = ingest_zip(first_path)
+    second = ingest_zip(second_path)
+
+    assert first.repository.repository_id.startswith("zip:")
+    assert first.repository.repository_id == second.repository.repository_id
+    assert first.snapshot_id == second.snapshot_id
+    assert first.snapshot_manifest.to_dict() == second.snapshot_manifest.to_dict()
+
+
+def test_zip_identity_changes_when_archive_file_content_changes(tmp_path):
+    first_path = make_zip(tmp_path / "one.zip", {"repo/app.py": "value = 1\n"})
+    second_path = make_zip(tmp_path / "two.zip", {"repo/app.py": "value = 2\n"})
+
+    first = ingest_zip(first_path)
+    second = ingest_zip(second_path)
+
+    assert first.repository.repository_id != second.repository.repository_id
+    assert first.snapshot_id != second.snapshot_id
+
+
+def test_zip_identity_is_independent_of_archive_filename_and_parent(tmp_path):
+    content = {"repo/app.py": "value = 1\n"}
+    (tmp_path / "a").mkdir()
+    (tmp_path / "b").mkdir()
+    first_path = make_zip(tmp_path / "a" / "first.zip", content)
+    second_path = make_zip(tmp_path / "b" / "renamed.zip", content)
+
+    first = resolve_zip(first_path, tmp_path / "extract-a")
+    second = resolve_zip(second_path, tmp_path / "extract-b")
+
+    assert first.repository.repository_id == second.repository.repository_id
+    assert first.repository.source_uri != second.repository.source_uri
+
+
+def test_rejects_zip_path_traversal_without_extracting_outside_root(tmp_path):
+    archive_path = make_zip(tmp_path / "traversal.zip", {"repo/../../escape.py": "bad"})
+    extraction_root = tmp_path / "extract"
+    with pytest.raises(ValueError, match="Unsafe ZIP entry path"):
+        resolve_zip(archive_path, extraction_root)
+    assert not (tmp_path / "escape.py").exists()
+
+
 def test_scanner_filters_apply_to_extracted_files(tmp_path):
     archive_path = make_zip(tmp_path / "filter.zip", {
         "repo/empty.py": "",
@@ -51,8 +104,10 @@ def test_scanner_filters_apply_to_extracted_files(tmp_path):
     })
     result = ingest_zip(archive_path, IngestionConfig(max_file_size_bytes=8))
     assert [doc.file_path for doc in result.documents] == ["repo/good.py"]
-    assert result.discovered_files == 2
-    assert result.skip_reasons == {"empty_file": 1}
+    assert result.discovered_files == 3
+    assert result.processed_files == 1
+    assert result.skipped_files == 2
+    assert result.skip_reasons == {"empty_file": 1, "file_too_large": 1}
 
 
 def test_extraction_directory_is_cleaned_and_documents_survive(tmp_path, monkeypatch):

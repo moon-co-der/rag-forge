@@ -11,16 +11,81 @@ and `ragforge.chunking` successfully.
 
 ## M1 — Repository ingestion
 
-M1 is not considered fully closed until the following deferred tasks are
-completed before M3:
+**Close-out status: implementation and local verification complete.**
 
-- **M1-T01:** snapshot manifest and stable snapshot identifiers.
-- **M1-T04:** GitHub repository source.
-- **M1-T10:** diff ingestion.
-- **M1-T11:** streaming ingestion API.
+### M1-T01 — Snapshot manifest and stable identity
 
-Snapshot identifiers are the priority because M3 evaluation runs depend on
-reproducible repository revisions.
+- The manifest includes a sorted per-file inventory, exact-byte size and SHA-256,
+  processed/skip status, explicit stable repository ID, and ingestion-config
+  hash. The snapshot ID hashes canonical JSON of those inputs and schema version.
+- Checkout paths, timestamps, source URIs, and enumeration order are excluded.
+- Local ingestion requires callers to supply `repository_id`; there is no
+  directory-name fallback.
+- Regression tests verify repeatability, path independence, identity and config
+  separation, content changes, empty repositories, creation order, and oversized
+  skip metadata.
+
+### M1-T04 — GitHub repository source
+
+- `resolve_github` accepts canonical HTTPS GitHub owner/repository URLs and a
+  full 40-character commit SHA only. It fetches that exact SHA, verifies both
+  `FETCH_HEAD` and detached `HEAD`, and records canonical `github:owner/repo`
+  identity and the resolved commit.
+- Live verification on 2026-11-07 resolved
+  `alan2207/bulletproof-react` at
+  `9506629ed003a561c6627735480cce4994244bb4`; resolver metadata and `git
+  rev-parse HEAD` matched. Unit tests cover unsupported URLs, moving refs,
+  invalid SHAs, fetch failure, and resolved-SHA mismatch.
+- ZIP repository identity is `zip:<sha256>` over canonical JSON containing
+  sorted normalized file paths, exact sizes, and SHA-256 content hashes. Archive
+  filesystem location/name, compression metadata, directory entries, and entry
+  order do not contribute. The normalized member paths do contribute. The
+  resolver computes per-file hashes while extracting in bounded blocks, after
+  validating paths and archive limits.
+
+### M1-T10 — Snapshot diff
+
+- `diff_snapshots` reports added, removed, and modified files in normalized
+  path order; identical manifests produce no changes. Cross-repository diffs
+  are rejected.
+- Tests cover all change types, file metadata/status changes, ordering, and the
+  identical-snapshot case.
+
+### M1-T11 — Streaming ingestion API
+
+- `iter_ingestion` yields per-file documents or explicit skip events in sorted
+  path order, followed by a completion event with manifest and aggregate counts.
+- Document contents are not accumulated; only the current file and compact
+  per-file manifest metadata are retained. Per-file reads remain bounded by the
+  configured file-size limit; oversized files are hashed in bounded blocks and
+  emitted as skips.
+- Tests cover incremental consumption, deterministic output and manifest,
+  oversized skips, and a read error followed by continued processing.
+
+### M1 verification evidence
+
+- ZIP regressions: `pytest tests/integration/ingestion/test_zip_ingestion.py -q`
+  — **20 passed**, including path/name independence, archive-order independence,
+  changed-content identity, unsafe paths, limits, and cleanup.
+- Local and manifest regressions — **17 passed**; M2 golden, symbol/overload,
+  and byte-coverage regressions — **21 passed**.
+- Full suite: `pytest -q` — **143 passed**.
+- Ruff: `ruff check src tests ingestion` — passed.
+- Mypy: parsing/chunking (26 files) and ingestion (14 files) — no issues.
+- Clean build: isolated `python -m build` produced wheel and sdist.
+- Fresh-environment install/import: wheel installed with declared dependencies;
+  `ragforge`, `ragforge.ingestion`, `ragforge.parsing`, and
+  `ragforge.chunking` imported from site-packages outside the source checkout.
+- `git diff --check` passed.
+
+Known limitations: local repository identity is caller-assigned and must be
+managed by the caller. ZIP repository identity represents the normalized archive
+file tree, so repackaging the same tree is stable, while any changed archive file
+entry changes the repository identity. Streaming keeps one compact manifest
+entry per discovered file in memory so it can emit the final content-addressed
+manifest; document contents are not retained. Repository scanning intentionally
+excludes configured directories, hidden paths, unsupported extensions, and
+symlinks.
 
 ## M2 — Parsing and structure-aware chunking
 

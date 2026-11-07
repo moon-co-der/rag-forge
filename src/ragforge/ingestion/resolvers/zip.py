@@ -1,6 +1,7 @@
 """Safe, bounded extraction of ZIP repository snapshots."""
 
 import hashlib
+import json
 import stat
 import zipfile
 from pathlib import Path, PurePosixPath
@@ -57,6 +58,7 @@ def resolve_zip(source: str | Path, destination: str | Path) -> RepoSnapshot:
                     raise ValueError("ZIP archive exceeds the compression ratio limit.")
 
         total_written = 0
+        content_metadata: list[dict[str, str | int]] = []
         for info in entries:
             relative, is_dir = _validated_member(info)
             target = (root / Path(*relative.parts)).resolve()
@@ -67,6 +69,7 @@ def resolve_zip(source: str | Path, destination: str | Path) -> RepoSnapshot:
                 continue
             target.parent.mkdir(parents=True, exist_ok=True)
             member_written = 0
+            member_hash = hashlib.sha256()
             try:
                 with archive.open(info, "r") as source_stream, target.open("xb") as output:
                     while chunk := source_stream.read(_COPY_CHUNK_SIZE):
@@ -79,13 +82,30 @@ def resolve_zip(source: str | Path, destination: str | Path) -> RepoSnapshot:
                         if member_written / max(info.compress_size, 1) > MAX_COMPRESSION_RATIO:
                             raise ValueError("ZIP archive exceeds the compression ratio limit.")
                         output.write(chunk)
+                        member_hash.update(chunk)
                 if member_written != info.file_size:
                     raise ValueError(f"ZIP member size does not match metadata: {info.filename}")
             except (zipfile.BadZipFile, RuntimeError, EOFError) as exc:
                 raise ValueError(f"Corrupted ZIP member: {info.filename}") from exc
+            content_metadata.append(
+                {
+                    "path": relative.as_posix(),
+                    "size_bytes": member_written,
+                    "sha256": member_hash.hexdigest(),
+                }
+            )
 
     resolved_archive = archive_path.resolve()
-    repository_id = hashlib.sha256(str(resolved_archive).encode("utf-8")).hexdigest()[:12]
+    # Treat a ZIP as a repository identified by its normalized file tree, not
+    # by the archive's location, filename, compression settings, or entry order.
+    identity_payload = json.dumps(
+        sorted(content_metadata, key=lambda item: str(item["path"])),
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    identity_digest = hashlib.sha256(identity_payload).hexdigest()
+    repository_id = f"zip:{identity_digest}"
     repository = RepositoryInfo(
         repository_id=repository_id,
         name=archive_path.stem,
