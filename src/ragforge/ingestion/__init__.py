@@ -8,6 +8,7 @@ from ragforge.ingestion.models import (
     RepoSnapshot,
 )
 from ragforge.ingestion.resolvers.local import resolve_local
+from ragforge.ingestion.zip_ingestion import ingest_zip
 
 __all__ = [
     "Document",
@@ -16,5 +17,6 @@ __all__ = [
     "RepoSnapshot",
     "RepositoryInfo",
     "ingest_local",
+    "ingest_zip",
     "resolve_local",
 ]

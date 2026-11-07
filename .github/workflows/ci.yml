@@ -31,5 +31,15 @@ jobs:
       - name: Run lint checks
         run: ruff check src tests
 
+      - name: Run static type checks
+        run: mypy src/ragforge/parsing src/ragforge/chunking --ignore-missing-imports
+
       - name: Build package
         run: python -m build
+
+      - name: Install and import built wheel in a clean environment
+        run: |
+          python -m venv /tmp/ragforge-package-check
+          /tmp/ragforge-package-check/bin/python -m pip install dist/*.whl
+          cd /tmp
+          /tmp/ragforge-package-check/bin/python -c "import ragforge; import ragforge.parsing; import ragforge.chunking; print('ok')"

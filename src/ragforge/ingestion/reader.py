@@ -12,6 +12,8 @@ class FileReadResult:
     content: str | None
     size_bytes: int
     skip_reason: str | None = None
+    source_prefix: str = ""
+    original_content: str | None = None
 
     @property
     def success(self) -> bool:
@@ -69,9 +71,21 @@ def read_file(path: Path, config: IngestionConfig) -> FileReadResult:
         return FileReadResult(None, size_bytes, "decoding_error")
 
     # Normalize Windows and old Mac line endings to Unix line endings.
+    source_prefix = "\ufeff" if raw_content.startswith(b"\xef\xbb\xbf") else ""
+    original_content = (
+        f"{source_prefix}{content}"
+        if source_prefix and not content.startswith(source_prefix)
+        else content
+    )
     content = content.replace("\r\n", "\n").replace("\r", "\n")
 
     if not content.strip():
         return FileReadResult(None, size_bytes, "empty_file")
 
-    return FileReadResult(content, size_bytes)
+    preserved_source = original_content if original_content != content else None
+    return FileReadResult(
+        content,
+        size_bytes,
+        source_prefix=source_prefix,
+        original_content=preserved_source,
+    )

@@ -3,6 +3,7 @@ import hashlib
 from pathlib import Path
 
 from ragforge.ingestion.models import Document, RepositoryInfo
+from ragforge.paths import normalize_repo_path
 
 LANGUAGE_MAP = {
     ".py": "python",
@@ -59,10 +60,11 @@ def build_document(
     file_path: str,
     content: str,
     size_bytes: int,
+    metadata: dict | None = None,
 ) -> Document:
     """Create a structured Document from normalized file content."""
 
-    normalized_path = Path(file_path).as_posix()
+    normalized_path = normalize_repo_path(file_path)
     extension = Path(normalized_path).suffix.lower()
 
     document_identity = f"{repository.repository_id}:{normalized_path}"
@@ -84,4 +86,5 @@ def build_document(
         size_bytes=size_bytes,
         content_hash=content_hash,
         line_count=len(content.splitlines()),
+        metadata=metadata or {},
     )

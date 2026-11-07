@@ -1,0 +1,67 @@
+{
+  "parse": {
+    "has_syntax_errors": true,
+    "syntax_error_count": 1,
+    "used_fallback": false,
+    "fallback_reason": null,
+    "errors": [
+      {
+        "message": "Missing syntax node",
+        "start_line": 4,
+        "end_line": 4,
+        "kind": "syntax_error"
+      }
+    ]
+  },
+  "symbols": [
+    {
+      "name": "recovered",
+      "symbol_type": "function",
+      "qualified_name": "recovered",
+      "signature": "def recovered()",
+      "start_line": 1,
+      "end_line": 2,
+      "documentation": "",
+      "symbol_key": "853e6d5edef7fae746d1c34f1619871245fade3d29a3840fffc9c93b15c1849b",
+      "parent_symbol_id": null,
+      "start_byte": 0,
+      "end_byte": 29,
+      "source_slice": "def recovered():\n    return 1"
+    },
+    {
+      "name": "broken",
+      "symbol_type": "function",
+      "qualified_name": "broken",
+      "signature": "def broken(",
+      "start_line": 4,
+      "end_line": 5,
+      "documentation": "",
+      "symbol_key": "5e3f3f121e63067f7426c5ef15a1c32b4216f693b352b0073a6bfd14be3130f8",
+      "parent_symbol_id": null,
+      "start_byte": 31,
+      "end_byte": 52,
+      "source_slice": "def broken(:\n    pass"
+    }
+  ],
+  "chunks": [
+    {
+      "symbol_name": "",
+      "symbol_type": "fallback",
+      "qualified_name": "",
+      "content": "def recovered():\n    return 1\n\ndef broken(:\n    pass\n",
+      "start_line": 1,
+      "end_line": 5,
+      "parent_chunk_id": null,
+      "chunk_origin": "fallback",
+      "coverage": true,
+      "context_header": "syntax_error.py",
+      "signature": "",
+      "enclosing_class": null,
+      "parent_symbol_key": null,
+      "is_trivial": false,
+      "fallback_reason": "syntax_error_threshold_exceeded",
+      "start_byte": 0,
+      "end_byte": 53
+    }
+  ]
+}
